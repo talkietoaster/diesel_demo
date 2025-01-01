@@ -52,10 +52,19 @@ impl eframe::App for GuiApp {
         }
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Music Store");
+            // Big, bold title
+            ui.add(
+                egui::Label::new(
+                    egui::RichText::new("Music Store")
+                        .size(32.0) // Set font size
+                        .strong(),  // Make it bold
+                )
+                    .wrap(false), // Prevent wrapping
+            );
+
             ui.add_space(10.0);
 
-            // Add Refresh and Clear Table buttons
+            // Buttons: Refresh and Clear Table
             ui.horizontal(|ui| {
                 if ui.button("Refresh").clicked() {
                     self.instruments = Self::fetch_instruments(&self.connection);
@@ -69,6 +78,7 @@ impl eframe::App for GuiApp {
 
             ui.add_space(10.0);
 
+            // Display selected row information
             if let Some(selected_index) = self.selected_row {
                 let selected_instrument = &self.instruments[selected_index];
                 ui.label(format!("Selected Instrument ID: {}", selected_instrument.id));
@@ -82,6 +92,7 @@ impl eframe::App for GuiApp {
 
             ui.add_space(10.0);
 
+            // Scrollable table
             egui::ScrollArea::vertical()
                 .max_height(400.0)
                 .show(ui, |ui| {
@@ -116,7 +127,7 @@ impl eframe::App for GuiApp {
                                 };
 
                                 ui.painter()
-                                    .rect_filled(row_rect, egui::Rounding::none(), bg_color);
+                                    .rect_filled(row_rect, egui::Rounding::ZERO, bg_color);
 
                                 ui.label(format!("{}", instrument.id));
                                 ui.label(instrument.make.as_deref().unwrap_or("N/A"));
