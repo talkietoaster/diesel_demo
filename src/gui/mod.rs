@@ -60,8 +60,9 @@ impl eframe::App for GuiApp {
                 .show(ui, |ui| {
                     egui::Grid::new("instrument_table")
                         .striped(true)
-                        .min_col_width(100.0)
+                        .min_col_width(100.0) // Adjust column width
                         .show(ui, |ui| {
+                            // Table header
                             ui.label("ID");
                             ui.label("Make");
                             ui.label("Model");
@@ -73,25 +74,27 @@ impl eframe::App for GuiApp {
                             ui.end_row();
 
                             for (index, instrument) in self.instruments.iter().enumerate() {
-                                // Draw row with a clickable response
-                                let row_interaction = ui.interact(
-                                    ui.available_rect_before_wrap(),
-                                    egui::Id::new(index),
-                                    egui::Sense::click(),
+                                // Calculate row rectangle
+                                let row_start = ui.cursor().min;
+                                let row_width = ui.max_rect().width();
+                                let row_height = ui.spacing().interact_size.y;
+                                let row_rect = egui::Rect::from_min_size(
+                                    row_start,
+                                    egui::Vec2::new(row_width, row_height),
                                 );
 
-                                let bg_color = if self.selected_row == Some(index) {
+                                let is_selected = self.selected_row == Some(index);
+                                let bg_color = if is_selected {
                                     egui::Color32::LIGHT_BLUE
                                 } else {
                                     egui::Color32::TRANSPARENT
                                 };
 
-                                // Draw the background for the row
-                                let rect = row_interaction.rect;
+                                // Draw row background
                                 ui.painter()
-                                    .rect_filled(rect, egui::Rounding::none(), bg_color);
+                                    .rect_filled(row_rect, egui::Rounding::none(), bg_color);
 
-                                // Table columns
+                                // Render content for each column
                                 ui.label(format!("{}", instrument.id));
                                 ui.label(instrument.make.as_deref().unwrap_or("N/A"));
                                 ui.label(instrument.model.as_deref().unwrap_or("N/A"));
@@ -107,8 +110,8 @@ impl eframe::App for GuiApp {
                                 ui.label(instrument.line.as_deref().unwrap_or("N/A"));
                                 ui.end_row();
 
-                                // Update selected row on click
-                                if row_interaction.clicked() {
+                                // Handle row click interaction
+                                if ui.interact(row_rect, egui::Id::new(index), egui::Sense::click()).clicked() {
                                     self.selected_row = Some(index);
                                 }
                             }
