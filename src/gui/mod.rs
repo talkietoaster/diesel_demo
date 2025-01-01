@@ -55,9 +55,11 @@ impl eframe::App for GuiApp {
             // Big, bold title
             ui.add(
                 egui::Label::new(
-                    egui::RichText::new("Music Store")
+                    egui::RichText::new("Ivey's Fantastic Music Store 🎸\
+                    ")
                         .size(32.0) // Set font size
-                        .strong(),  // Make it bold
+                        .strong()
+                        .color(egui::Color32::DARK_BLUE),  // Make it bold
                 )
                     .wrap(false), // Prevent wrapping
             );
