@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-eframe = "0.24"
+eframe = { version = "0.24", features = ["default"] }
 tokio = { version = "1", features = ["full"] }
 actix-web = "4.0"
 diesel = { version = "2.2.4", features = ["mysql", "chrono"] }
