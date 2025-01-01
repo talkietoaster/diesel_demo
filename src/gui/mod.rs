@@ -18,6 +18,7 @@ pub struct GuiApp {
     instruments: Vec<Instrument>,
     shutdown_rx: Option<oneshot::Receiver<()>>,
     selected_row: Option<usize>, // To track the selected row
+    image: Option<egui::ColorImage>, // To hold the loaded image
 }
 
 impl GuiApp {
@@ -26,11 +27,23 @@ impl GuiApp {
         shutdown_rx: oneshot::Receiver<()>,
     ) -> Self {
         let instruments = Self::fetch_instruments(&connection);
+
+        // Load the image
+        let image_path = "assets/baritone-mm.png"; // Update to your file name
+        let image = match load_image(image_path) {
+            Ok(img) => Some(img),
+            Err(err) => {
+                eprintln!("Failed to load image: {}", err);
+                None
+            }
+        };
+
         Self {
             connection,
             instruments,
             shutdown_rx: Some(shutdown_rx),
             selected_row: None,
+            image,
         }
     }
 
@@ -40,6 +53,13 @@ impl GuiApp {
             .load::<Instrument>(&mut *conn)
             .unwrap_or_else(|_| vec![])
     }
+}
+
+fn load_image(path: &str) -> Result<egui::ColorImage, String> {
+    let img = image::open(path).map_err(|e| format!("Failed to load image: {}", e))?;
+    let size = [img.width() as usize, img.height() as usize];
+    let pixels = img.to_rgba8().into_raw();
+    Ok(egui::ColorImage::from_rgba_unmultiplied(size, &pixels))
 }
 
 impl eframe::App for GuiApp {
@@ -55,11 +75,10 @@ impl eframe::App for GuiApp {
             // Big, bold title
             ui.add(
                 egui::Label::new(
-                    egui::RichText::new("Ivey's Fantastic Music Store 🎸\
-                    ")
+                    egui::RichText::new("Ivey's Fantastic Music Store 🎸🎹")
                         .size(32.0) // Set font size
-                        .strong()
-                        .color(egui::Color32::DARK_BLUE),  // Make it bold
+                        .strong()   // Make it bold
+                        .color(egui::Color32::BLUE), // Make the title blue
                 )
                     .wrap(false), // Prevent wrapping
             );
@@ -152,6 +171,24 @@ impl eframe::App for GuiApp {
                             }
                         });
                 });
+
+            ui.add_space(20.0);
+
+            // Picture Window
+            ui.heading("Picture Window");
+            ui.add_space(10.0);
+
+            if let Some(image) = &self.image {
+                let texture_id = ctx.load_texture(
+                    "baritone_mm", // Texture name (unique identifier)
+                    image.clone(),
+                    egui::TextureOptions::LINEAR, // Use TextureOptions
+                );
+
+                ui.image(&texture_id); // Borrow the texture ID
+            } else {
+                ui.label("No image loaded.");
+            }
         });
     }
 }

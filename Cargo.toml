@@ -4,10 +4,26 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-eframe = { version = "0.24", features = ["default"] }
-tokio = { version = "1", features = ["full"] }
-actix-web = "4.0"
-diesel = { version = "2.2.4", features = ["mysql", "chrono"] }
-serde = { version = "1", features = ["derive"] }
-chrono = { version = "0.4", features = ["serde"] }
-dotenvy = "0.15"
+# GUI Framework
+eframe = "0.24.1"                # No features needed for image handling
+
+# Image Processing
+image = "0.24"                   # Used to load and process image files
+
+# Async Runtime
+tokio = { version = "1", features = ["full"] }  # Async runtime for REST API and GUI
+
+# Web Framework
+actix-web = "4.0"                # REST API server
+
+# ORM
+diesel = { version = "2.2.4", features = ["mysql", "chrono"] }  # MySQL support for Diesel
+
+# Serialization
+serde = { version = "1", features = ["derive"] }  # JSON (de)serialization
+
+# Date/Time Library
+chrono = { version = "0.4", features = ["serde"] }  # Used for date/time fields
+
+# Environment Variables
+dotenvy = "0.15"                 # Load environment variables
