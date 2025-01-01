@@ -55,14 +55,40 @@ impl eframe::App for GuiApp {
             ui.heading("Music Store");
             ui.add_space(10.0);
 
+            // Add Refresh and Clear Table buttons
+            ui.horizontal(|ui| {
+                if ui.button("Refresh").clicked() {
+                    self.instruments = Self::fetch_instruments(&self.connection);
+                }
+
+                if ui.button("Clear Table").clicked() {
+                    self.instruments.clear();
+                    self.selected_row = None; // Clear any selected row as well
+                }
+            });
+
+            ui.add_space(10.0);
+
+            if let Some(selected_index) = self.selected_row {
+                let selected_instrument = &self.instruments[selected_index];
+                ui.label(format!("Selected Instrument ID: {}", selected_instrument.id));
+                ui.label(format!(
+                    "Selected Instrument Make: {}",
+                    selected_instrument.make.as_deref().unwrap_or("N/A")
+                ));
+            } else {
+                ui.label("No Instrument Selected");
+            }
+
+            ui.add_space(10.0);
+
             egui::ScrollArea::vertical()
                 .max_height(400.0)
                 .show(ui, |ui| {
                     egui::Grid::new("instrument_table")
                         .striped(true)
-                        .min_col_width(100.0) // Adjust column width
+                        .min_col_width(100.0)
                         .show(ui, |ui| {
-                            // Table header
                             ui.label("ID");
                             ui.label("Make");
                             ui.label("Model");
@@ -74,7 +100,6 @@ impl eframe::App for GuiApp {
                             ui.end_row();
 
                             for (index, instrument) in self.instruments.iter().enumerate() {
-                                // Calculate row rectangle
                                 let row_start = ui.cursor().min;
                                 let row_width = ui.max_rect().width();
                                 let row_height = ui.spacing().interact_size.y;
@@ -90,11 +115,9 @@ impl eframe::App for GuiApp {
                                     egui::Color32::TRANSPARENT
                                 };
 
-                                // Draw row background
                                 ui.painter()
                                     .rect_filled(row_rect, egui::Rounding::none(), bg_color);
 
-                                // Render content for each column
                                 ui.label(format!("{}", instrument.id));
                                 ui.label(instrument.make.as_deref().unwrap_or("N/A"));
                                 ui.label(instrument.model.as_deref().unwrap_or("N/A"));
@@ -110,17 +133,12 @@ impl eframe::App for GuiApp {
                                 ui.label(instrument.line.as_deref().unwrap_or("N/A"));
                                 ui.end_row();
 
-                                // Handle row click interaction
                                 if ui.interact(row_rect, egui::Id::new(index), egui::Sense::click()).clicked() {
                                     self.selected_row = Some(index);
                                 }
                             }
                         });
                 });
-
-            if ui.button("Refresh").clicked() {
-                self.instruments = Self::fetch_instruments(&self.connection);
-            }
         });
     }
 }
