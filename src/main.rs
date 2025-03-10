@@ -17,7 +17,7 @@ struct ApiResponse<T> {
 }
 
 enum Mode {
-    Rest,
+    Rest ,
     Cli,
     Gui,
 }
